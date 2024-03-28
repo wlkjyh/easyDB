@@ -20,12 +20,13 @@ public class Builder {
     private final ArrayList<String> select;
     private final Integer[] limit;
     private final ArrayList<String[]> orderBy;
+    private final ArrayList<String> groupBy;
 
     private ArrayList<String> bind = new ArrayList<>();
 
     private String sql;
 
-    public Builder(String table, ArrayList<String[]> where, ArrayList<String[]> orWhere, boolean delete, HashMap<String, Object> update, HashMap<String, Object> insert, ArrayList<String> select, Integer[] limit, ArrayList<String[]> orderBy) {
+    public Builder(String table, ArrayList<String[]> where, ArrayList<String[]> orWhere, boolean delete, HashMap<String, Object> update, HashMap<String, Object> insert, ArrayList<String> select, Integer[] limit, ArrayList<String[]> orderBy, ArrayList<String> groupBy) {
         this.table = table;
         this.where = where;
         this.orWhere = orWhere;
@@ -35,6 +36,7 @@ public class Builder {
         this.select = select;
         this.limit = limit;
         this.orderBy = orderBy;
+        this.groupBy = groupBy;
 
     }
 
@@ -160,6 +162,18 @@ public class Builder {
         return orderByStr.toString();
     }
 
+    public String getGroupBy() {
+        StringBuilder groupByStr = new StringBuilder();
+        if (!groupBy.isEmpty()) {
+            groupByStr.append(" group by ");
+            for (String s : groupBy) {
+                groupByStr.append(s).append(", ");
+            }
+            groupByStr.delete(groupByStr.length() - 2, groupByStr.length());
+        }
+        return groupByStr.toString();
+    }
+
 
     public Builder compileSql() {
         StringBuilder sql = new StringBuilder();
@@ -170,7 +184,9 @@ public class Builder {
         } else if (!insert.isEmpty()) {
             sql.append("insert into ").append("`" + table + "`").append(getInsert());
         } else {
-            sql.append(getSelect()).append(" from ").append("`" + table + "`").append(getWhere()).append(getOrWhere()).append(getOrderBy()).append(getLimit());
+//            sql.append(getSelect()).append(" from ").append("`" + table + "`").append(getWhere()).append(getOrWhere()).append(getOrderBy()).append(getLimit());
+            sql.append(getSelect()).append(" from ").append("`" + table + "`").append(getWhere()).append(getOrWhere()).append(getGroupBy()).append(getOrderBy()).append(getLimit());
+
         }
 //        System.out.println(bind);
         this.sql = sql.toString();

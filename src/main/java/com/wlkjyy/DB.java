@@ -79,6 +79,13 @@ public class DB {
      */
     private ArrayList<String[]> orderBy = new ArrayList<>();
 
+
+    /***
+     * GroupBy
+     */
+
+    private ArrayList<String> groupBy = new ArrayList<>();
+
     /***
      * 编译后的sql
      */
@@ -270,6 +277,11 @@ public class DB {
      * @return
      */
     public DB addSelect(String... column) {
+
+        if(this.select.size() == 1 && this.select.get(0).equals("*")){
+            this.select = new ArrayList<>();
+        }
+
         this.select.addAll(Arrays.asList(column));
         return this;
     }
@@ -310,7 +322,7 @@ public class DB {
     }
 
     private Builder Builder() {
-        Builder builder = new Builder(this.table, this.where, this.orWhere, this.delete, this.update, this.insert, this.select, this.limit, this.orderBy);
+        Builder builder = new Builder(this.table, this.where, this.orWhere, this.delete, this.update, this.insert, this.select, this.limit, this.orderBy,this.groupBy);
         builder.compileSql();
         return builder;
 
@@ -336,7 +348,7 @@ public class DB {
         ArrayList<String> bind = builder.getBind();
         String Sql = builder.getSql();
 
-//        System.out.println(Sql);
+        System.out.println(Sql);
 
 //        执行查询
 //        return new Query(this.getConnection(), Sql, bind).get(false);
@@ -578,7 +590,7 @@ public class DB {
      * 是否不存在
      * @return
      */
-    public boolean notExists() {
+    public boolean doesntExist() {
         return this.count() == 0;
     }
 
@@ -765,6 +777,73 @@ public class DB {
         }
         this.getSql();
         return this.execute(this.compileSql, this.bind.toArray());
+    }
+
+    public DB distinct(String... column) {
+        this.select = new ArrayList<>();
+        StringBuilder select = new StringBuilder();
+        select.append("distinct ");
+        for (String item : column) {
+            select.append(item).append(",");
+        }
+        select.deleteCharAt(select.length() - 1);
+        this.select.add(select.toString());
+        return this;
+    }
+
+    public DB addColumnCount(String column, String alias) {
+        this.addSelect("count(" + column + ") as " + alias);
+        return this;
+    }
+
+    public DB addColumnCount(String column) {
+        return this.addColumnCount(column, "count");
+    }
+
+    public DB addColumnSum(String column, String alias) {
+        this.addSelect("sum(" + column + ") as " + alias);
+        return this;
+    }
+
+    public DB addColumnSum(String column) {
+        return this.addColumnSum(column, "sum");
+    }
+
+    public DB addColumnMax(String column, String alias) {
+        this.addSelect("max(" + column + ") as " + alias);
+        return this;
+    }
+
+    public DB addColumnMax(String column) {
+        return this.addColumnMax(column, "max");
+    }
+
+    public DB addColumnMin(String column, String alias) {
+        this.addSelect("min(" + column + ") as " + alias);
+        return this;
+    }
+
+    public DB addColumnMin(String column) {
+        return this.addColumnMin(column, "min");
+    }
+
+    public DB addColumnAvg(String column, String alias) {
+        this.addSelect("avg(" + column + ") as " + alias);
+        return this;
+    }
+
+    public DB addColumnAvg(String column) {
+        return this.addColumnAvg(column, "avg");
+    }
+
+    public DB groupBy(String... column) {
+//        this.groupBy = new ArrayList<>(Arrays.asList(column));
+        if (this.groupBy.isEmpty()) {
+            this.groupBy = new ArrayList<>(Arrays.asList(column));
+        } else {
+            this.groupBy.addAll(Arrays.asList(column));
+        }
+        return this;
     }
 
 
