@@ -14,12 +14,32 @@
 
 ```xml
 <dependency>
-            <groupId>com.wlkjyy</groupId>
-            <artifactId>EasyDB</artifactId>
-            <version>1.0.2</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/EasyDB-1.0.2.jar</systemPath>
- </dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.30</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>2.7.1</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.wlkjyy</groupId>
+			<artifactId>EasyDB</artifactId>
+			<version>1.0.2</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/EasyDB-1.0.2.jar</systemPath>
+		</dependency>
 ```
 
 
@@ -79,6 +99,59 @@ public class Main {
 }
 
 ```
+
+
+
+## springboot中使用
+
+创建一个service
+
+```java
+
+@Service
+public class db {
+
+    @Bean
+    public DB DB(){
+        Manager manager = new Manager();
+        manager.addConnection(new HashMap<>(){
+            {
+                put("host", "localhost");
+                put("port", 3306);
+                put("username", "root");
+                put("password", "123456");
+                put("database", "jianzhan");
+            }
+        });
+
+        return manager.getEloquentInstance();
+    }
+
+}
+```
+
+使用
+
+```java
+@RestController
+public class IndexController {
+
+    @Autowired
+    DB db;
+
+
+    @GetMapping("/")
+    public ArrayList<HashMap<String, Object>> index() throws SQLException {
+        return db.table("users").get();
+    }
+
+}
+
+```
+
+
+
+
 
 
 
