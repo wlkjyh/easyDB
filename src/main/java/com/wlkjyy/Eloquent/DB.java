@@ -446,7 +446,7 @@ public class DB {
         }
     }
 
-    public int increment(String column, int value) throws SQLException {
+    public int increment(String column, double value) throws SQLException {
         this.update = new HashMap<>();
         this.update.put(column, column + "(EasyDBNoBind)+" + value);
         this.getSql();
@@ -454,7 +454,7 @@ public class DB {
 
     }
 
-    public int decrement(String column, int value) throws SQLException {
+    public int decrement(String column, double value) throws SQLException {
         this.update = new HashMap<>();
         this.update.put(column, column + "(EasyDBNoBind)-" + value);
         this.getSql();
