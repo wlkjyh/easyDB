@@ -281,6 +281,48 @@ MyDB.table("users").orWhereNotBetween ("id", 1, 5).get()
 
 
 
+### whereNull / whereNotNull
+
+``whereNull``和``whereNotNull``可以验证字段是否为null或不为null
+
+```java
+MyDB.table("users").whereNull("verify_email").first()
+```
+
+```java
+MyDB.table("users").whereNotNull("verify_email").first()
+```
+
+
+
+### whereColumn / orWhereColumn
+
+``whereColumn``和``orWhereColumn``可以实现对两个``字段``进行比较
+
+
+
+例如下面这样
+
+```java
+MyDB.table("users").whereColumn("id","uid").first()
+```
+
+也可以是这样
+
+```java
+MyDB.table("users").whereColumn("id",">","uid").first()
+```
+
+也可以连贯操作
+
+```java
+DB.table("users").whereColumn("id","=","uid").orWhereColumn("id","<","uid").get()
+```
+
+
+
+
+
 
 
 ### 删除语句
@@ -546,6 +588,28 @@ MyDB.table("users").where("active",1).limit(100).orderBy("id","asc").orderBy("us
 
 
 
+#### orderByAsc / orderByDesc
+
+``orderByAsc``和``orderByDesc``可以对某个字段进行排序
+
+
+
+例如下面这样
+
+```java
+MyDB.table("users").orderByAsc("id").get()
+```
+
+他等价于
+
+```java
+MyDB.table("users").orderBy("id","asc").get()
+```
+
+
+
+
+
 #### 随机排序
 
 `inRandomOrder` 方法被用来将查询结果随机排序。例如，你可以使用这个方法去获得一个随机用户:
@@ -580,9 +644,13 @@ MyDB.table("users").select("uid").latest("time").get()
 
 
 
+#### **reorder**
 
+`reorder` 方法可用于移除所有已存在的排序
 
-
+```java
+MyDB.table("users").orderByAsc("id").reorder().first()
+```
 
 
 

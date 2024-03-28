@@ -278,7 +278,7 @@ public class DB {
      */
     public DB addSelect(String... column) {
 
-        if(this.select.size() == 1 && this.select.get(0).equals("*")){
+        if (this.select.size() == 1 && this.select.get(0).equals("*")) {
             this.select = new ArrayList<>();
         }
 
@@ -322,7 +322,7 @@ public class DB {
     }
 
     private Builder Builder() {
-        Builder builder = new Builder(this.table, this.where, this.orWhere, this.delete, this.update, this.insert, this.select, this.limit, this.orderBy,this.groupBy);
+        Builder builder = new Builder(this.table, this.where, this.orWhere, this.delete, this.update, this.insert, this.select, this.limit, this.orderBy, this.groupBy);
         builder.compileSql();
         return builder;
 
@@ -843,6 +843,89 @@ public class DB {
         } else {
             this.groupBy.addAll(Arrays.asList(column));
         }
+        return this;
+    }
+
+    public DB whereNull(String column) {
+
+
+        this.where.add(new String[]{column, "=", "null"});
+
+        return this;
+
+
+    }
+
+    public DB whereNotNull(String column) {
+        this.where.add(new String[]{column, "!=", "null"});
+
+        return this;
+    }
+
+    public DB whereColumn(String column, String operate, String column2) {
+
+        // 判断操作符是否被允许
+        if (!Arrays.asList(this.operateList).contains(operate)) {
+            throw new RuntimeException("操作符不合法");
+        }
+
+//        重复检查
+        for (String[] item : this.where) {
+            if (item[0].equals(column) && item[1].equals(operate) && item[2].equals(String.valueOf(column))) {
+                return this;
+            }
+        }
+
+        this.where.add(new String[]{column, operate, column2, null});
+        return this;
+
+    }
+
+    public DB whereColumn(String column, String column2) {
+
+        return this.whereColumn(column, "=", column2);
+
+    }
+
+    public DB orWhereColumn(String column, String operate, String column2) {
+
+        // 判断操作符是否被允许
+        if (!Arrays.asList(this.operateList).contains(operate)) {
+            throw new RuntimeException("操作符不合法");
+        }
+
+//        重复检查
+        for (String[] item : this.orWhere) {
+            if (item[0].equals(column) && item[1].equals(operate) && item[2].equals(String.valueOf(column))) {
+                return this;
+            }
+        }
+
+        this.orWhere.add(new String[]{column, operate, column2, null});
+        return this;
+
+    }
+
+    public DB orWhereColumn(String column, String column2) {
+
+        return this.orWhere(column, "=", column2);
+
+    }
+
+    public DB orderByDesc(String column) {
+
+        return this.orderBy(column, "desc");
+    }
+
+    public DB orderByAsc(String column) {
+
+        return this.orderBy(column, "asc");
+    }
+
+    public DB reorder() {
+
+        this.orderBy = new ArrayList<>();
+
         return this;
     }
 
