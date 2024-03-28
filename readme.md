@@ -375,7 +375,7 @@ MyDB.table("users").where("active",1).min("uid");
 
 ### 获取平均值
 
-通过``a``vg方法可以获取最小值，返回一个``Double``类型数据
+通过``avg``方法可以获取最小值，返回一个``Double``类型数据
 
 
 
