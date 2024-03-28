@@ -782,13 +782,13 @@ MyDB.table("users").insert(new HashMap<>(){
 ### 查询
 
 ```java
-new MyDB().query("select * from `user`")
+MyDB.query("select * from `user`")
 ```
 
 ### 带有参数绑定的查询
 
 ```java
-new MyDB().query("select * from `admin` where `uid` = ?", new Object[]{1})
+MyDB.query("select * from `admin` where `uid` = ?", new Object[]{1})
 ```
 
 
@@ -796,6 +796,6 @@ new MyDB().query("select * from `admin` where `uid` = ?", new Object[]{1})
 ### 更新和参数同理
 
 ```java
-new MyDB().update("update `user` set `cookie`=123123 where uid = 1")
+MyDB.update("update `user` set `cookie`=123123 where uid = 1")
 ```
 
