@@ -121,7 +121,11 @@ public class DB {
     private ArrayList<String> bind;
 
     public DB table(String table_name) {
-        this.table = table_name;
+        return new DB(this.connect).table_name(table_name);
+    }
+
+    private DB table_name(String tableName) {
+        this.table = tableName;
         return this;
     }
 

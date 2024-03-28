@@ -118,6 +118,7 @@ public class Query {
                 this.close();
                 return new ArrayList<>();
             }
+            this.close();
             return rows;
         } catch (SQLException e) {
             this.close();
