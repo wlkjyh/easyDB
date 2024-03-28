@@ -1,4 +1,12 @@
-package com.wlkjyy;
+/*
+ * Copyright (c) 2024. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
+package com.wlkjyy.Eloquent;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -33,6 +41,10 @@ public class Query {
         this.bind = bind;
     }
 
+    public void close() throws SQLException {
+        this.connection.close();
+    }
+
     /***
      * 执行SQL查询
      * @return
@@ -43,22 +55,31 @@ public class Query {
             for (int i = 0; i < bind.size(); i++) {
                 stmt.setString(i + 1, bind.get(i));
             }
+
             return stmt.executeQuery();
         } catch (SQLException e) {
             return null;
         }
     }
 
-    public boolean execute() {
+    /***
+     * 返回受影响的行数
+     * @return
+     */
+    public int execute() {
         try {
             PreparedStatement stmt = this.connection.prepareStatement(sql);
             for (int i = 0; i < bind.size(); i++) {
                 stmt.setString(i + 1, bind.get(i));
             }
-//            判断是否执行成功
-            return true;
+
+            int line = stmt.executeUpdate();
+            this.close();
+            return line;
         } catch (SQLException e) {
-            return false;
+
+            return 0;
+
         }
     }
 
@@ -67,7 +88,7 @@ public class Query {
      * @param first 是否只查询一条数据
      * @return ArrayList<HashMap < String, Object>>
      */
-    public ArrayList<HashMap<String, Object>> get(boolean first) {
+    public ArrayList<HashMap<String, Object>> get(boolean first) throws SQLException {
         try {
             ResultSet resultSet = this.statement();
             ResultSetMetaData metaData = null;
@@ -87,15 +108,19 @@ public class Query {
                     }
                     rows.add(row);
                     if (first) {
+                        this.close();
                         return rows;
                     }
                 }
             }
             if (first) {
+
+                this.close();
                 return new ArrayList<>();
             }
             return rows;
         } catch (SQLException e) {
+            this.close();
             return new ArrayList<>();
         }
     }

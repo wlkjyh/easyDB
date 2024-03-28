@@ -6,7 +6,7 @@
 
     <groupId>com.wlkjyy</groupId>
     <artifactId>EasyDB</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -20,6 +20,23 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>2.7.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+
     </dependencies>
 
 </project>

@@ -16,9 +16,9 @@
 <dependency>
             <groupId>com.wlkjyy</groupId>
             <artifactId>EasyDB</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/EasyDB-1.0.1.jar</systemPath>
+            <systemPath>${project.basedir}/lib/EasyDB-1.0.2.jar</systemPath>
  </dependency>
 ```
 
@@ -44,54 +44,51 @@
 
 ## 创建数据库连接
 
-创建一个类，对DB进行继承，就可以连接数据库了
+创建一个``Manager``实例，通过``addConnection``方法添加一个连接，通过``getEloquentInstance``方法获取一个DB实例
 
 ```java
-package com.wlkjyy.jianzhan.Utils;
+import com.wlkjyy.Capsule.Manager;
+import com.wlkjyy.Eloquent.DB;
 
-import com.wlkjyy.DB;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * @Author: wlkjyy <wlkjyy@vip.qq.com>
- * @Date: 2024/3/27
- * @Project: jianzhan
+ * @Date: 2024/3/26
+ * @Project: Default (Template) Project
  */
-public class MyDB extends DB {
+public class Main {
+    public static void main(String[] args) throws SQLException {
 
-    /***
-     * 数据库名称
-     */
-    protected String DB_DATABASE = "jianzhan";
+        Manager manager = new Manager();
+        manager.addConnection(new HashMap<>(){
+            {
+                put("host", "localhost");
+                put("port", 3306);
+                put("username", "root");
+                put("password", "123456");
+                put("database", "testdatabase");
+            }
+        });
 
-    /***
-     * 数据库用户名
-     */
+        DB myDB = manager.getEloquentInstance();
 
-    protected String DB_USERNAME = "root";
-
-    /***
-     * 数据库密码
-     */
-
-    protected String DB_PASSWORD = "123456";
-
-    /***
-     * 数据库HOST
-     */
-
-    protected String DB_HOST = "localhost";
-
-    /***
-     * 数据库端口
-     */
-    protected Integer DB_PORT = 3306;
-
-
+    }
 }
 
 ```
+
+
+
+## 说明
+
+``easyDB``默认情况下是使用的``Hikari``连接池，相关参数位于``MySqlConnector.java``中
+
+
+
+默认情况下，是使用``10``个连接。
 
 
 
@@ -646,10 +643,16 @@ MyDB.table("users").select("uid").latest("time").get()
 
 #### **reorder**
 
-`reorder` 方法可用于移除所有已存在的排序
+`reorder` 方法可用于移除所有已存在的排序并且应用一个新的排序（可选）：
 
 ```java
 MyDB.table("users").orderByAsc("id").reorder().first()
+```
+
+也可以这样做
+
+```java
+MyDB.table("users").orderByAsc("id").reorder("id","desc").first()
 ```
 
 
