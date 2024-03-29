@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 
 /**
  * @Author: wlkjyy <wlkjyy@vip.qq.com>
@@ -666,5 +667,41 @@ public class DB {
         return new Query(this.getConnect(), sql, new ArrayList<>()).get(false);
     }
 
+    /***
+     * 分页数据
+     * @param page
+     * @param limit
+     * @return
+     * @throws SQLException
+     */
+    public ArrayList<HashMap<String, Object>> pageData(int page, int limit) throws SQLException {
+        this.limit((page - 1) * limit, limit);
+        return this.get();
+    }
+
+    /***
+     * 创建分页器实例
+     * @param perPage
+     * @param page
+     * @param pageParamterName URL参数名称
+     * @return
+     */
+    public Paginate paginate(int perPage, int page, String pageParamterName) throws SQLException {
+
+        /***
+         * 当前分页的数据
+         */
+        ArrayList<HashMap<String, Object>> pageData = this.pageData(page, perPage);
+        /***
+         * 总共的数据
+         */
+
+        int total = this.count();
+        return new Paginate(total, pageData, pageParamterName,page,perPage);
+    }
+
+    public Paginate paginate(int perPage, int page) throws SQLException {
+        return this.paginate(perPage, page, "page");
+    }
 
 }

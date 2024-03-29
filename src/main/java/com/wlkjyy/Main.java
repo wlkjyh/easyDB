@@ -37,9 +37,7 @@ public class Main {
         DB db = manager.getEloquentInstance();
 
         System.out.println(
-                db.update("update `users` set k = 1 where username = ?",new Object[]{
-                        "wlkjyy"
-                })
+                db.table("users").paginate(15,1).setParamter("username=admin").toHashmap()
         );
 
     }

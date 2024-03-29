@@ -1,6 +1,6 @@
 # EasyDB
 
-该项目可以让开发者使用原生sql或者查询构造器与数据库进行交互
+该项目可以让开发者使用原生sql或者查询构造器与数据库进行交互，同时``easyDB``还支持自动分页器，只需要传入一些参数就可以实现自动分页。
 
 
 
@@ -777,7 +777,7 @@ MyDB.table("users").insert(new HashMap<>(){
 
 ## 原生sql
 
-对于查询，返回类型为``ArrayList<HashMap<String, Object>>``，对于删除、更新、插入，返回类型为``bool``
+对于查询，返回类型为``ArrayList<HashMap<String, Object>>``，对于删除、更新、插入，返回类型为``int``受影响的行数
 
 ### 查询
 
@@ -793,9 +793,193 @@ MyDB.query("select * from `admin` where `uid` = ?", new Object[]{1})
 
 
 
-### 更新和参数同理
+### 更新
 
 ```java
 MyDB.update("update `user` set `cookie`=123123 where uid = 1")
 ```
+
+### 带有参数绑定的更新
+
+```java
+MyDB.update("update `user` set `cookie`=123123 where uid = ?",new Object[]{
+    1
+})
+```
+
+
+
+### 删除
+
+```java
+MyDB.delete("delete from `users` where `uid` = 1");
+```
+
+### 带有参数绑定的删除
+
+```java
+MyDB.delete("delete from `users` where `uid` = ?",new Object[]{
+    1
+});
+```
+
+
+
+
+
+## 自动分页器
+
+``easyDB``允许用户传入一些简单的参数就可以自动生成前端分页代码或者输出``json``格式的数据到前端。
+
+
+
+### 创建一个分页器实例
+
+```java
+db.table("users").paginate(15,1)
+```
+
+如果你希望使用自动分页器，那么你就不需要去使用``get``、``find``、``first``方法去获取数据了，你需要直接使用``paginate``来获取一个分页器实例。
+
+``paginate``方法包含3个参数，分别为``每页的数量``、``当前页``、``分页参数``，其中``分页参数``默认不传入情况下为``page``，则URL路径为``?page=1``
+
+你也可以这样
+
+```java
+db.table("users").paginate(15,1,"pages")
+```
+
+在Springboot中你可以这样做
+
+```java
+db.table("users").paginate(15,Integer.valueOf((String) request.getAttribute("pages")),"pages")
+```
+
+
+
+### 渲染分页HTML到前端
+
+在springboot中可以这样实现
+
+```
+@GetMapping("/test")
+public String index(Model model,HttpServletRequest request) {
+
+    Paginate paginate = db.table("users").paginate(15,Integer.valueOf((String) request.getAttribute("pages")),"pages");
+    model.addAttribute("paginate", paginate);
+
+    return "index";
+
+}
+```
+
+index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+[[${paginate.links()}]]
+
+</body>
+</html>
+```
+
+
+
+### 渲染数据
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    
+<div th:each="row:${paginate.item()}">
+    <span th:text="${row.id}"></span>
+    <span th:text="${row.username}"></span>
+</div>
+
+[[${paginate.links()}]]
+
+</body>
+</html>
+```
+
+
+
+
+
+``easyDB``目前只支持渲染``bootstrap5``的分页代码，你可以在``Paginate.java``中实现自己的分页代码渲染逻辑。
+
+### 添加分页参数
+
+通过``links``方法渲染的HTML分页代码，默认情况下``url``只包含``page``分页参数，你可以使用下面方法添加更多的分页参数
+
+```html
+[[${paginate.links("usertype=admin&local=admin")}]]
+```
+
+你也可以在创建分页器的时候指定分页参数
+
+```java
+db.table("users").paginate(15,1).setParamter("username=admin")
+```
+
+### 输出分页输出为json
+
+你可以通过下面这个示例，将分页输出为json
+
+```
+@RestController
+public class IndexController {
+
+    @Autowired
+    DB db;
+
+    @GetMapping("/test")
+    public String index(HttpServletRequest request) {
+
+        return db.table("users").paginate(15,1).toHashmap();
+
+    }
+
+}
+```
+
+
+
+### 分页器实例方法
+每一个分页器实例都提供了下列方法来获取分页信息：
+
+
+
+| 方法                       | 描述                   |
+| -------------------------- | ---------------------- |
+| paginate.count()           | 获取分页的总数据数量   |
+| paginate.currentPage()     | 获取当前页码           |
+| paginate.hasPages()        | 判断是否有分页         |
+| paginate.links()           | 获取分页HTML渲染       |
+| paginate.setParamter()     | 设置额外的分页参数     |
+| paginate.toHashmap()       | 转换为hashmap          |
+| paginate.count()           | 获取当前分页的数据数量 |
+| paginate.items()           | 获取当前分页的数据     |
+| paginate.lastPage()        | 获取最后一页的页码     |
+| paginate.lastPageUrl()     | 获取最后一页的URL      |
+| paginate.firstPageUrl()    | 获取第一页的URL        |
+| paginate.nextPageUrl()     | 获取下一页的URL        |
+| paginate.onFirstPage()     | 判断是否是第一页       |
+| paginate.perPage()         | 获取每页的数量         |
+| paginate.previousPageUrl() | 获取上一页的URL        |
+| paginate.total()           | 获取数据总量           |
+| paginate.url()             | 获取指定页的URL        |
+| paginate.hasMorePages()    | 是否有更多的页         |
 
